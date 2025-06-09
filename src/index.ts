@@ -1,6 +1,7 @@
 import { Annotation, END, messagesStateReducer, START, StateGraph } from "@langchain/langgraph";
 import OpenAI from "openai";
 import dotenv from 'dotenv'
+import { complex } from "./complex-graph";
 
 dotenv.config()
 
@@ -50,4 +51,6 @@ async function main(){
     console.log("Result : ", result)
 }
 
-main();
+// main();
+
+complex()
