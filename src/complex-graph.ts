@@ -23,7 +23,7 @@ const StateAnnotation = Annotation.Root({
         default: () => false,
     }),
     accuracyOfCode: Annotation<string>({
-        reducer: (_prev, next) => next,
+        reducer: (_prev : string, next: string) => next,
         default: () => "",
     }),
 });
@@ -41,11 +41,10 @@ export const nodeOneClassify = async (state: typeof StateAnnotation.State) => {
     const result = await client.chat.completions.create({
         model: "gemini-2.0-flash",
         messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: query },
+            { 'role': "system", 'content': SYSTEM_PROMPT },
+            { 'role': "user", 'content': query },
         ],
     });
-    console.log(result.choices[0].message.content)
 
     const content = result.choices[0].message.content?.toLowerCase().trim();
     state.isCodingquestion = content === "true";
@@ -67,11 +66,10 @@ export const nodeThree = async (state: typeof StateAnnotation.State) => {
     const response = await client.chat.completions.create({
         model: "gemini-2.0-flash",
         messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: query },
+            { 'role': "system", 'content': SYSTEM_PROMPT },
+            { 'role': "user", 'content': query },
         ],
     });
-    console.log(response.choices[0].message.content)
 
     state.llm_response = response.choices[0].message.content ?? "";
     return state;
@@ -82,9 +80,8 @@ export const nodeFourGeneralize = async (state: typeof StateAnnotation.State) =>
 
     const response = await client.chat.completions.create({
         model: "gemini-2.0-flash",
-        messages: [{ role: "user", content: query }],
+        messages: [{ 'role': "user", 'content': query }],
     });
-    console.log(response.choices[0].message.content)
 
     state.llm_response = response.choices[0].message.content ?? "";
     return state;
@@ -98,22 +95,32 @@ export const nodeFiveReviewCode = async (state: typeof StateAnnotation.State) =>
         The result should be in string format
         User Query: ${query}
         LLM Response: ${llm_response}
-        
+
         Example 
-        accuracy = "95%"
+        "95%"
     `;
-    console.log(SYSTEM_PROMPT)
 
     const response = await client.chat.completions.create({
         model: "gemini-2.0-flash",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }],
+        messages: [{ 'role': "system", 'content': SYSTEM_PROMPT },
+            {'role': 'user', 'content': query}
+        ],
     });
-    console.log("hii three")
-    console.log(response.choices[0].message.content)
+
 
     state.accuracyOfCode = response.choices[0].message.content as string;
     return state;
 };
+
+// export const reWriteOrNot = async (state: typeof StateAnnotation.State) => {
+//     if(state.accuracyOfCode < "90%"){
+//         return "three"
+//     }
+//     return END;
+// };
+
+
+
 
 const workflow = new StateGraph(StateAnnotation)
     .addNode("one", nodeOneClassify)
@@ -130,7 +137,7 @@ const graph = workflow.compile();
 
 export async function complex() {
     const result = await graph.invoke({
-        query: "write me a code to add two number in js",
+        query: "hey there how are you doing today",
         llm_response: null,
         isCodingquestion: false,
         accuracyOfCode: "",
